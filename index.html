@@ -1,5 +1,30 @@
 <!DOCTYPE html>
 <head>
+<style>
+body {
+  font-family: Arial;
+}
+
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 80px;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.left {
+  left: 0;
+  background-color: Gray;
+}
+.right {
+  right: 0;
+  background-color: Brown;
+}
+</style>
+
 <script>
 "use strict";
 
@@ -9,44 +34,66 @@ let url ='https://data.covid19india.org/v4/min/data.min.json';
 let response = await fetch(url);
 
 let commits = await response.json(); // read response body and parse as JSON
-//console.log(commits.length+ " Response = ", commits);
 var table = document.getElementById("CovidTable");
-//console.log("Table Dom=", table);
 let count =1;
+
 for (let x in commits) {
    console.log(x + ": ", commits[x])
    let allData= commits[x];
-   //console.log(allData.dates)
+   let totalData= allData.total;
+   console.log("total data=", totalData);
    var row = table.insertRow(count);
    var cell1 = row.insertCell(0);
    var cell2 = row.insertCell(1);
+   var cell3 = row.insertCell(2);
+   var cell4 = row.insertCell(3);
+   var cell5 = row.insertCell(4);
+   var cell6 = row.insertCell(5);
+   var cell7 = row.insertCell(6);
    cell1.innerHTML = x;
-   cell2.innerHTML = "To be updated";
+   cell2.innerHTML = totalData.confirmed;
+   cell3.innerHTML = totalData.deceased;
+   cell4.innerHTML = totalData.recovered;
+   cell5.innerHTML = totalData.tested;
+   cell6.innerHTML = totalData.vaccinated1;
+   cell7.innerHTML = totalData.vaccinated2;
+
    count++;
 
 }
-//alert("Total Count"+count);
-
-
-   var row = table.insertRow(count);
-   var cell1 = row.insertCell(0);
-   var cell2 = row.insertCell(1);
-   cell1.innerHTML = "Total" ;
-   cell2.innerHTML = count;
+var row = table.insertRow(count);
+var cell1 = row.insertCell(0);
+var cell2 = row.insertCell(1);
+cell1.innerHTML = "Total" ;
+cell2.innerHTML = count;
 
 })()
 </script>
 </head>
 <body>
-   <H1>COVID Dashboard</H1>
-<div>
+<H1>COVID DASHBOARD</H1>
+<br><br>
+<div class="split left">
 <table id="CovidTable" width="100%">
 <thead> 
 <tr align="left">
 <th>State</th>
-<th>Case Count</th>
+<th>Confirmed</th>
+<th>Deceased</th>
+<th>Recovered</th>
+<th>Tested</th>
+<th>Vaccinated1</th>
+<th>Vaccinated2</th>
 </tr></thead>
 <tbody></tbody>
 </table>
 </div>
-</body>
+<div class="split right">
+<table id="b_CovidTable" width="100%">
+<thead> 
+<tr align="left">
+<th>District Name</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
