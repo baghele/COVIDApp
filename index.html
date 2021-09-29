@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<head>
+<script>
+"use strict";
+
+(async () => {
+//let url = 'https://data.covid19india.org/v4/min/timeseries.min.json';
+let url ='https://data.covid19india.org/v4/min/data.min.json';
+let response = await fetch(url);
+
+let commits = await response.json(); // read response body and parse as JSON
+//console.log(commits.length+ " Response = ", commits);
+var table = document.getElementById("CovidTable");
+//console.log("Table Dom=", table);
+let count =1;
+for (let x in commits) {
+   console.log(x + ": ", commits[x])
+   let allData= commits[x];
+   //console.log(allData.dates)
+   var row = table.insertRow(count);
+   var cell1 = row.insertCell(0);
+   var cell2 = row.insertCell(1);
+   cell1.innerHTML = x;
+   cell2.innerHTML = "To be updated";
+   count++;
+
+}
+//alert("Total Count"+count);
+
+
+   var row = table.insertRow(count);
+   var cell1 = row.insertCell(0);
+   var cell2 = row.insertCell(1);
+   cell1.innerHTML = "Total" ;
+   cell2.innerHTML = count;
+
+})()
+</script>
+</head>
+<body>
+<H1>COVID CASE INFORMATION</H1>
+<div>
+<table id="CovidTable" width="100%">
+<thead> 
+<tr align="left">
+<th>State</th>
+<th>Case Count</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</body>
