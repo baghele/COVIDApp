@@ -2,30 +2,156 @@
 <head>
 <style>
 body {
-  font-family: Arial;
+	font-family: Arial;
 }
 
 .split {
-  height: 100%;
-  width: 50%;
-  position: fixed;
-  z-index: 1;
-  top: 80px;
-  overflow-x: hidden;
-  padding-top: 20px;
+	height: 100%;
+	position: fixed;
+	z-index: 1;
+	top: 80px;
+	overflow-x: hidden;
+	padding-top: 20px;
 }
 
 .left {
-  left: 0;
-  background-color: Gray;
+	left: 0;
+	width: 60%;
+	  background-image: url('left.jpg');
+
 }
+
 .right {
-  right: 0;
-  background-color: Brown;
+	right: 0;
+	width: 40%;
+	  background-image: url('right.jpeg');
+
 }
 </style>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <script>
+var _districtsData=null;
+function loadDistrictInfo(){
+var selectedDistrict = document.getElementById("d_DropDown").value;
+if(selectedDistrict && selectedDistrict.length>0)
+{
+var table = document.getElementById("stateMeta");
+  var tableHeaderRowCount = 0;
+var rowCount = table.rows.length;
+for (var i = tableHeaderRowCount; i < rowCount; i++) {
+    table.deleteRow(tableHeaderRowCount);
+}
+   console.log("_districtsData= ", _districtsData) 
+   var allDData= null;
+   for (let x in _districtsData) {
+   //console.log(x + ": ", commits[x])
+   	if(x == selectedDistrict){
+   		allDData = _districtsData[x];
+   		break;
+   	}
+   }
+   
+    
+   let totalData= allDData.total; 
+	 console.log("all Data for District " + selectedDistrict + " = ", totalData);
+ 	let disrtictMeta = allDData.meta;   
+   var row1 = table.insertRow(0);
+   var cell3 = row1.insertCell(0);
+   var cell4 = row1.insertCell(1);
+   cell3.innerHTML = "District Population:";
+   cell4.innerHTML = disrtictMeta.population;
+   var xValues = [];
+   var yValues = [];
+   var barColors = [
+     "#b91d47",
+     "#00aba9",
+     "#2b5797",
+     "#e8c3b9",
+     "#1e7145",
+     "#FF6347"
+   ];
+   
+   for(let k in totalData){
+	   xValues.push(k);
+	   yValues.push(totalData[k]);
+   }
+   var myNode = document.getElementById("myChart");
+   console.log(myNode);
+   
+   while (myNode.firstChild) {
+   console.log("inside");
+     myNode.removeChild(myNode.lastChild);
+   }
+
+  var chart = new Chart("myChart", {
+     type: "doughnut",
+     data: {
+       labels: xValues,
+       datasets: [{
+         backgroundColor: barColors,
+         data: yValues
+       }]
+     },
+     options: {
+       title: {
+         display: true,
+         text: "DISTRICT WISE COVID 19 INFORMATION"
+       }
+     }
+   });
+   // set legend position
+chart.legend().position("bottom");
+// set items layout
+   
+}
+}
+function loadDistricts(state,districts,meta) {
+	   const myNode = document.getElementById("myChart");
+	   while (myNode.firstChild) {
+	     myNode.removeChild(myNode.lastChild);
+	   }
+	 
+	   
+  var ddd = document.getElementById("d_DropDown");
+  for (i = ddd.length - 1; i >= 0; i--) {
+	ddd.remove(i);
+	}
+  var option = document.createElement("option");
+	option.text = "Select";
+	option.value = "";
+	ddd.add(option);
+	 _districtsData = districts;
+
+  for (let x in districts) {
+   //console.log(x + ": ", commits[x])
+   	var option1 = document.createElement("option");
+	option1.text = x;
+	option1.value = x;
+	ddd.add(option1);
+   }
+  var table = document.getElementById("stateMeta");
+  var tableHeaderRowCount = 0;
+ var rowCount = table.rows.length;
+	for (var i = tableHeaderRowCount; i < rowCount; i++) {
+	    table.deleteRow(tableHeaderRowCount);
+	}
+   var row = table.insertRow(0);
+   var cell1 = row.insertCell(0);
+   var cell2 = row.insertCell(1);
+   cell1.innerHTML = "Last Updated Date:";
+   cell2.innerHTML = meta.last_updated;
+
+   
+   var row1 = table.insertRow(1);
+   var cell3 = row1.insertCell(0);
+   var cell4 = row1.insertCell(1);
+   cell3.innerHTML = "State Population:";
+   cell4.innerHTML = meta.population;
+   
+
+  //alert("Clicked on ", state);
+}
+
 "use strict";
 
 (async () => {
@@ -38,10 +164,13 @@ var table = document.getElementById("CovidTable");
 let count =1;
 
 for (let x in commits) {
-   console.log(x + ": ", commits[x])
+   //console.log(x + ": ", commits[x])
    let allData= commits[x];
-   let totalData= allData.total;
-   console.log("total data=", totalData);
+   let totalData= allData.total; 
+   let districts = allData.districts
+   let meta = allData.meta;
+
+   //console.log("total data=", totalData);
    var row = table.insertRow(count);
    var cell1 = row.insertCell(0);
    var cell2 = row.insertCell(1);
@@ -50,7 +179,18 @@ for (let x in commits) {
    var cell5 = row.insertCell(4);
    var cell6 = row.insertCell(5);
    var cell7 = row.insertCell(6);
-   cell1.innerHTML = x;
+   //cell1.innerHTML = x;
+   var link = document.createElement('a');
+   link.setAttribute('href', "#");
+   link.setAttribute('target', "_self");
+   link.setAttribute('value', x);
+   link.innerHTML = x;
+   
+   link.onclick = function() {
+	loadDistricts(x,districts,meta);
+   };
+   cell1.appendChild(link);
+
    cell2.innerHTML = totalData.confirmed;
    cell3.innerHTML = totalData.deceased;
    cell4.innerHTML = totalData.recovered;
@@ -71,29 +211,33 @@ cell2.innerHTML = count;
 </script>
 </head>
 <body>
-<H1>COVID DASHBOARD</H1>
-<br><br>
-<div class="split left">
-<table id="CovidTable" width="100%">
-<thead> 
-<tr align="left">
-<th>State</th>
-<th>Confirmed</th>
-<th>Deceased</th>
-<th>Recovered</th>
-<th>Tested</th>
-<th>Vaccinated1</th>
-<th>Vaccinated2</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
-<div class="split right">
-<table id="b_CovidTable" width="100%">
-<thead> 
-<tr align="left">
-<th>District Name</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
+	<div style="background-image: url('title.jpg');">
+	<i><H1>COVID DASHBOARD</H1></i>
+	</div>
+	<br>
+	<br>
+	<div class="split left">
+		<table id="CovidTable" width="100%">
+			<thead>
+				<tr align="left">
+					<th>State</th>
+					<th>Confirmed</th>
+					<th>Deceased</th>
+					<th>Recovered</th>
+					<th>Tested</th>
+					<th>Vaccinated1</th>
+					<th>Vaccinated2</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
+	<div class="split right">
+		<label for="d_DropDown">District:</label> <select name="d_DropDown"
+			id="d_DropDown" onchange="loadDistrictInfo()">
+			<option value="">Select</option>
+		</select>
+		<table id="stateMeta" width="100%" cellspacing="10px">
+		</table>
+		<canvas id="myChart" style="width:100%;max-width:800px"></canvas>
+	</div>
